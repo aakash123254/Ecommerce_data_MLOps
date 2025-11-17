@@ -26,3 +26,24 @@ def load_processed_data():
 # ==========================
 # 🧩 Feature Engineering
 # ==========================
+def create_features(df):
+    print("🛠 Creating features...")
+    
+    if df is None or df.empty:
+        print("❌ No data available for feature engineering.")
+        return None 
+    
+    # ---- Convert InvoiceDate to datetime ----
+    if "InvoiceDate" in df.columns:
+        df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"],errors="coerece")
+        
+        # Extract useful time features 
+        df["InvoiceYear"] = df["InvoiceDate"].dt.year 
+        df["InvoiceMonth"] = df["InvoiceDate"].dt.month 
+        df["InvoiceDay"] = df["InvoiceDate"].dt.day
+        df["InvoiceHour"] = df["InvoiceDate"].dt.hour
+        df["InvoiceDayOfWeek"] = df["InvoiceDate"].dt.dayofweek
+        
+    # ---- Create Total Price ----
+    if "Quantity" in df.columns and "UnitPrice" in df.columns:
+        df["TotalPrice"] = df["Quantity"] * df["UnitPrice"]
