@@ -63,3 +63,28 @@ def create_features(df):
 # ==========================
 # 💾 Save Feature Data
 # ==========================
+def save_feature_data(df):
+    print("💾 Saving features data...")
+    
+    #Ensure output folder exists 
+    os.makedirs(os.path.dirname(FEATURE_DATA_PATH),exist_ok=True)
+    
+    df.to_csv(FEATURE_DATA_PATH,index=False)
+    print(f"✅ Features data saved to {FEATURE_DATA_PATH}")
+    
+
+# ==========================
+# 🚀 Main Function
+# ==========================
+def main():
+    df = load_processed_data()
+    df_features = create_features(df) 
+    
+    if df_features is not None:
+        save_feature_data(df_features)
+
+if __name__ == "__main__":
+    main()
+
+# ==========================
+# End of feature_engineering.py
