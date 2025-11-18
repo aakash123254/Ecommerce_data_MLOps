@@ -47,3 +47,19 @@ def create_features(df):
     # ---- Create Total Price ----
     if "Quantity" in df.columns and "UnitPrice" in df.columns:
         df["TotalPrice"] = df["Quantity"] * df["UnitPrice"]
+    
+    # ---- One-hot encode Country ----
+    if "Country" in df.columns:
+        df = pd.get_dummies(df,columns=["Country"],prefix="Country",drop_first=True)
+    
+    # ---- Drop non-essential columns ----
+    drop_columns = ["InvoiceNo","Description"]
+    df = df.drop(columns=[col for col in drop_columns if col in df.columns],errors="ignore")
+    
+    print("✅ Feature engineering completed. Shape: {df.shape}")
+    return df
+
+
+# ==========================
+# 💾 Save Feature Data
+# ==========================
