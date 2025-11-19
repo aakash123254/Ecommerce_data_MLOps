@@ -35,7 +35,7 @@ def create_features(df):
     
     # ---- Convert InvoiceDate to datetime ----
     if "InvoiceDate" in df.columns:
-        df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"],errors="coerece")
+        df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"], errors="coerce")
         
         # Extract useful time features 
         df["InvoiceYear"] = df["InvoiceDate"].dt.year 
