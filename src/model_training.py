@@ -52,4 +52,52 @@ def train_model(X_train,y_train):
     
     return model 
 
+def evaluate_model(model,X_test,y_test):
+    logging.info("📊 Evaluate model....")
+    
+    preds = model.predict(X_test)
+    
+    acc = accuracy_score(y_test,preds)
+    precision = precision_score(y_test,preds)
+    recall = recall_score(y_test,preds)
+    f1 = f1_score(y_test,preds)
+    
+    logging.info(f"🎯 Accuracy: {acc: .4f}")
+    logging.info(f"🎯 Precision: {precision: .4f}")
+    logging.info(f"🎯 Recall: {recall: .4f}")
+    logging.info(f"🎯 F1-score: {f1:.4f}")
+    
+    logging.info("📌 Classification Report ")
+    logging.info("\n"+ classification_report(y_test,preds))
+    
+    cm = confusion_matrix(y_test,preds)
+    logging.info(f"📌 Confusion Matrix: \n{cm}")
+    
+    return acc,precision,recall,f1 
 
+def save_model(model, path="artifacts/model/model.pkl"):
+    os.makedirs(os.path.dirname(path),exist_ok=True)
+    joblib.dump(model,path)
+    logging.info(f"💾 Model saved at: {path}")
+    
+
+def main():
+    logging.info("🚀 Starting model training pipeline....")
+    
+    df = load_feature_data()
+    
+    X_train, X_test, y_train, y_test = split_data(df)
+    
+    model = train_model(X_train,y_train)
+    
+    evaluate_model(model,X_test,y_test)
+    
+    save_model(model)
+    
+    logging.info("🎉 Model training pipeline completed successfully!")
+    
+
+if __name__ == "__main__":
+    main()
+# ==========================
+# 🛠 Feature Engineering
