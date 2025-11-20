@@ -1,103 +1,143 @@
-import os 
-import pandas as pd 
-import numpy as np 
-import joblib 
-from sklearn.model_selection import train_test_split 
-from sklearn.ensemble import RandomForestClassifier 
+import os
+import pandas as pd
+import numpy as np
+import joblib
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    confusion_matrix,
-    classification_report,
+    accuracy_score, precision_score, recall_score,
+    f1_score, confusion_matrix, classification_report
 )
 
-from utils.logger import logging 
+import logging
 
-def load_feature_data(path="artifacts/feature_engineering/feature_data.csv"):
-    logging.info("📥 Loading feature engineered data....")
+
+# ==========================
+# 📥 Load Feature Data
+# ==========================
+def load_feature_data():
+    path = "data/features/features.csv"
+    print(f"📥 Loading features from: {path}")
     df = pd.read_csv(path)
-    logging.info(f"✅ Data Loaded. Shape: {df.shape}") 
-    return df 
+    print(f"✅ Loaded. Shape: {df.shape}")
+    return df
 
+
+# ==========================
+# 🧹 Clean / Select Valid Columns
+# ==========================
+def clean_data(df):
+    print("🧹 Cleaning data...")
+
+    # Drop columns that are STILL strings
+    drop_cols = []
+
+    for col in df.columns:
+        if df[col].dtype == "object":
+            drop_cols.append(col)
+
+    if drop_cols:
+        print(f"⚠️ Dropping non-numeric columns: {drop_cols}")
+        df = df.drop(columns=drop_cols)
+
+    print(f"✅ Cleaned data shape: {df.shape}")
+    return df
+
+
+# ==========================
+# ✂️ Train/Test Split
+# ==========================
 def split_data(df):
-      logging.info("✂️ Splitting data into train and test sets....")
-      
-      X = df.drop("Is_Return",axis=1)
-      y = df["Is_Return"]
-      
-      X_train, X_test, y_train, y_test = train_test_split(
-          X,y,test_size=0.2, random_state=42, stratify=y
-      )
-      
-      logging.info(f"🔹 Train Shape: {X_train.shape}")
-      logging.info(f"🔹 Test Shape: {X_test.shape}")
-      
-      return X_train,X_test, y_train, y_test
+    print("✂️ Splitting data into train/test...")
 
-def train_model(X_train,y_train):
-    logging.info("🛠 Training Random Forest model.....")
-    
+    X = df.drop("Is_Return", axis=1)
+    y = df["Is_Return"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42, stratify=y
+    )
+
+    print(f"🔹 Train Shape: {X_train.shape}")
+    print(f"🔹 Test Shape: {X_test.shape}")
+
+    return X_train, X_test, y_train, y_test
+
+
+# ==========================
+# 🛠 Model Training
+# ==========================
+def train_model(X_train, y_train):
+    print("🛠 Training Random Forest model...")
+
     model = RandomForestClassifier(
         n_estimators=200,
         max_depth=12,
         random_state=42,
         class_weight="balanced"
     )
-    
-    model.fit(X_train,y_train)
-    
-    logging.info("✅ Model training completed.")
-    
-    return model 
 
-def evaluate_model(model,X_test,y_test):
-    logging.info("📊 Evaluate model....")
-    
+    model.fit(X_train, y_train)
+
+    print("✅ Model training completed.")
+    return model
+
+
+# ==========================
+# 📊 Evaluation
+# ==========================
+def evaluate_model(model, X_test, y_test):
+    print("📊 Evaluating model...")
+
     preds = model.predict(X_test)
-    
-    acc = accuracy_score(y_test,preds)
-    precision = precision_score(y_test,preds)
-    recall = recall_score(y_test,preds)
-    f1 = f1_score(y_test,preds)
-    
-    logging.info(f"🎯 Accuracy: {acc: .4f}")
-    logging.info(f"🎯 Precision: {precision: .4f}")
-    logging.info(f"🎯 Recall: {recall: .4f}")
-    logging.info(f"🎯 F1-score: {f1:.4f}")
-    
-    logging.info("📌 Classification Report ")
-    logging.info("\n"+ classification_report(y_test,preds))
-    
-    cm = confusion_matrix(y_test,preds)
-    logging.info(f"📌 Confusion Matrix: \n{cm}")
-    
-    return acc,precision,recall,f1 
 
+    acc = accuracy_score(y_test, preds)
+    prec = precision_score(y_test, preds)
+    rec = recall_score(y_test, preds)
+    f1 = f1_score(y_test, preds)
+
+    print(f"🎯 Accuracy: {acc:.4f}")
+    print(f"🎯 Precision: {prec:.4f}")
+    print(f"🎯 Recall: {rec:.4f}")
+    print(f"🎯 F1 Score: {f1:.4f}")
+
+    print("\n📌 Classification Report")
+    print(classification_report(y_test, preds))
+
+    print("\n📌 Confusion Matrix")
+    print(confusion_matrix(y_test, preds))
+
+    return acc, prec, rec, f1
+
+
+# ==========================
+# 💾 Save Model
+# ==========================
 def save_model(model, path="artifacts/model/model.pkl"):
-    os.makedirs(os.path.dirname(path),exist_ok=True)
-    joblib.dump(model,path)
-    logging.info(f"💾 Model saved at: {path}")
-    
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    joblib.dump(model, path)
+    print(f"💾 Model saved at: {path}")
 
+
+# ==========================
+# 🚀 MAIN
+# ==========================
 def main():
-    logging.info("🚀 Starting model training pipeline....")
-    
+    print("🚀 Starting model training pipeline...")
+
     df = load_feature_data()
-    
+
+    df = clean_data(df)  # 🔥 New step added here
+
     X_train, X_test, y_train, y_test = split_data(df)
-    
-    model = train_model(X_train,y_train)
-    
-    evaluate_model(model,X_test,y_test)
-    
+
+    model = train_model(X_train, y_train)
+
+    evaluate_model(model, X_test, y_test)
+
     save_model(model)
-    
-    logging.info("🎉 Model training pipeline completed successfully!")
-    
+
+    print("🎉 Pipeline completed successfully!")
+
 
 if __name__ == "__main__":
     main()
-# ==========================
-# 🛠 Feature Engineering
