@@ -1,5 +1,5 @@
-import os 
-import pandas as pd 
+import os
+import pandas as pd
 
 # ==========================
 # 📁 File Paths
@@ -26,6 +26,7 @@ def load_processed_data():
 # ==========================
 # 🧩 Feature Engineering
 # ==========================
+
 def create_features(df):
     print("🛠 Creating features...")
     
@@ -33,11 +34,14 @@ def create_features(df):
         print("❌ No data available for feature engineering.")
         return None 
     
+    # ========= Target Column =========
+    # Return = Quantity < 0
+    df["Is_Return"] = (df["Quantity"] < 0).astype(int)
+
     # ---- Convert InvoiceDate to datetime ----
     if "InvoiceDate" in df.columns:
         df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"], errors="coerce")
         
-        # Extract useful time features 
         df["InvoiceYear"] = df["InvoiceDate"].dt.year 
         df["InvoiceMonth"] = df["InvoiceDate"].dt.month 
         df["InvoiceDay"] = df["InvoiceDate"].dt.day
@@ -50,32 +54,31 @@ def create_features(df):
     
     # ---- One-hot encode Country ----
     if "Country" in df.columns:
-        df = pd.get_dummies(df,columns=["Country"],prefix="Country",drop_first=True)
+        df = pd.get_dummies(df, columns=["Country"], prefix="Country", drop_first=True)
     
     # ---- Drop non-essential columns ----
-    drop_columns = ["InvoiceNo","Description"]
-    df = df.drop(columns=[col for col in drop_columns if col in df.columns],errors="ignore")
+    drop_columns = ["InvoiceNo", "Description", "InvoiceDate"]
+    df = df.drop(columns=[col for col in drop_columns if col in df.columns], errors="ignore")
     
-    print("✅ Feature engineering completed. Shape: {df.shape}")
+    print(f"✅ Feature engineering completed. Shape: {df.shape}")
     return df
-
 
 # ==========================
 # 💾 Save Feature Data
 # ==========================
+
 def save_feature_data(df):
     print("💾 Saving features data...")
     
-    #Ensure output folder exists 
-    os.makedirs(os.path.dirname(FEATURE_DATA_PATH),exist_ok=True)
+    os.makedirs(os.path.dirname(FEATURE_DATA_PATH), exist_ok=True)
     
-    df.to_csv(FEATURE_DATA_PATH,index=False)
+    df.to_csv(FEATURE_DATA_PATH, index=False)
     print(f"✅ Features data saved to {FEATURE_DATA_PATH}")
-    
 
 # ==========================
 # 🚀 Main Function
 # ==========================
+
 def main():
     df = load_processed_data()
     df_features = create_features(df) 
@@ -85,6 +88,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# ==========================
-# End of feature_engineering.py
