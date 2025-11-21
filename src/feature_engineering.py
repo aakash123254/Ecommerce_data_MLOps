@@ -34,10 +34,6 @@ def create_features(df):
         print("❌ No data available for feature engineering.")
         return None 
     
-    # ========= Target Column =========
-    # Return = Quantity < 0
-    df["Is_Return"] = (df["Quantity"] < 0).astype(int)
-
     # ---- Convert InvoiceDate to datetime ----
     if "InvoiceDate" in df.columns:
         df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"], errors="coerce")
@@ -51,7 +47,13 @@ def create_features(df):
     # ---- Create Total Price ----
     if "Quantity" in df.columns and "UnitPrice" in df.columns:
         df["TotalPrice"] = df["Quantity"] * df["UnitPrice"]
-    
+
+    # ==============================
+    # 🎯 NEW TARGET COLUMN
+    # Predict HIGH VALUE TRANSACTIONS
+    # ==============================
+    df["HighValue"] = (df["TotalPrice"] > 1000).astype(int)
+
     # ---- One-hot encode Country ----
     if "Country" in df.columns:
         df = pd.get_dummies(df, columns=["Country"], prefix="Country", drop_first=True)

@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import numpy as np
 import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -9,12 +8,10 @@ from sklearn.metrics import (
     f1_score, confusion_matrix, classification_report
 )
 
-import logging
-
-
 # ==========================
 # 📥 Load Feature Data
 # ==========================
+
 def load_feature_data():
     path = "data/features/features.csv"
     print(f"📥 Loading features from: {path}")
@@ -22,19 +19,14 @@ def load_feature_data():
     print(f"✅ Loaded. Shape: {df.shape}")
     return df
 
-
 # ==========================
 # 🧹 Clean / Select Valid Columns
 # ==========================
+
 def clean_data(df):
     print("🧹 Cleaning data...")
 
-    # Drop columns that are STILL strings
-    drop_cols = []
-
-    for col in df.columns:
-        if df[col].dtype == "object":
-            drop_cols.append(col)
+    drop_cols = [col for col in df.columns if df[col].dtype == "object"]
 
     if drop_cols:
         print(f"⚠️ Dropping non-numeric columns: {drop_cols}")
@@ -43,15 +35,15 @@ def clean_data(df):
     print(f"✅ Cleaned data shape: {df.shape}")
     return df
 
-
 # ==========================
 # ✂️ Train/Test Split
 # ==========================
+
 def split_data(df):
     print("✂️ Splitting data into train/test...")
 
-    X = df.drop("Is_Return", axis=1)
-    y = df["Is_Return"]
+    X = df.drop("HighValue", axis=1)
+    y = df["HighValue"]
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
@@ -62,10 +54,10 @@ def split_data(df):
 
     return X_train, X_test, y_train, y_test
 
-
 # ==========================
 # 🛠 Model Training
 # ==========================
+
 def train_model(X_train, y_train):
     print("🛠 Training Random Forest model...")
 
@@ -81,10 +73,10 @@ def train_model(X_train, y_train):
     print("✅ Model training completed.")
     return model
 
-
 # ==========================
 # 📊 Evaluation
 # ==========================
+
 def evaluate_model(model, X_test, y_test):
     print("📊 Evaluating model...")
 
@@ -108,36 +100,32 @@ def evaluate_model(model, X_test, y_test):
 
     return acc, prec, rec, f1
 
-
 # ==========================
 # 💾 Save Model
 # ==========================
+
 def save_model(model, path="artifacts/model/model.pkl"):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     joblib.dump(model, path)
     print(f"💾 Model saved at: {path}")
 
-
 # ==========================
 # 🚀 MAIN
 # ==========================
+
 def main():
     print("🚀 Starting model training pipeline...")
 
     df = load_feature_data()
-
-    df = clean_data(df)  # 🔥 New step added here
+    df = clean_data(df)
 
     X_train, X_test, y_train, y_test = split_data(df)
 
     model = train_model(X_train, y_train)
-
     evaluate_model(model, X_test, y_test)
-
     save_model(model)
 
     print("🎉 Pipeline completed successfully!")
-
 
 if __name__ == "__main__":
     main()
