@@ -59,3 +59,18 @@ def evaluate(model,df):
     print(confusion_matrix(y_true,preds))
     
 
+# ==========================
+# 🚀 MAIN
+# ==========================
+def main():
+    print("🚀 Starting evaluation script....")
+    
+    df = load_feature_data()
+    model = load_model()
+    
+    evaluate(model,df)
+    
+    print(f"🎉 Evaluation completed")
+
+if __name__ == "__main__":
+    main()
