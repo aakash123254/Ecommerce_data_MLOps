@@ -44,15 +44,9 @@ def create_features(df):
         df["InvoiceHour"] = df["InvoiceDate"].dt.hour
         df["InvoiceDayOfWeek"] = df["InvoiceDate"].dt.dayofweek
         
-    # ---- Create Total Price ----
+    # ---- Create Sales (Regression Target) ----
     if "Quantity" in df.columns and "UnitPrice" in df.columns:
-        df["TotalPrice"] = df["Quantity"] * df["UnitPrice"]
-
-    # ==============================
-    # 🎯 NEW TARGET COLUMN
-    # Predict HIGH VALUE TRANSACTIONS
-    # ==============================
-    df["HighValue"] = (df["TotalPrice"] > 1000).astype(int)
+        df["Sales"] = df["Quantity"] * df["UnitPrice"]
 
     # ---- One-hot encode Country ----
     if "Country" in df.columns:
@@ -63,6 +57,7 @@ def create_features(df):
     df = df.drop(columns=[col for col in drop_columns if col in df.columns], errors="ignore")
     
     print(f"✅ Feature engineering completed. Shape: {df.shape}")
+    print("🎯 REGRESSION TARGET CREATED: 'Sales'")
     return df
 
 # ==========================

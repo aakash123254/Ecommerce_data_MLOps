@@ -1,11 +1,8 @@
-import os 
-import joblib 
-import pandas as pd 
-import matplotlib.pyplot as plt 
-from sklearn.metrics import(
-    accuracy_score, precision_score, recall_score,
-    f1_score, confusion_matrix, classification_report,
-    roc_curve, auc
+import os
+import joblib
+import pandas as pd
+from sklearn.metrics import (
+    mean_absolute_error, mean_squared_error, r2_score
 )
 
 # ==========================
@@ -15,7 +12,7 @@ def load_feature_data(path="data/features/features.csv"):
     print(f"📥 Loading features from: {path}")
     df = pd.read_csv(path)
     print(f"✅ Loaded. Shape: {df.shape}")
-    return df 
+    return df
 
 
 # ==========================
@@ -29,48 +26,49 @@ def load_model(path="artifacts/model/model.pkl"):
 
 
 # ==========================
-# 🧪 Evaluate Model
+# 🧪 Regression Evaluation
 # ==========================
-def evaluate(model,df):
-    print("🧪 Running evaluation....")
-    
-    if "Is_Return" not in df.columns:
-        raise ValueError("❌ ERROR: Target column 'Is_Return' not found in dataset!")
-    
-    X = df.drop("Is_return",axis=1)
-    y_true = df["Is_Return"]
-    
+def evaluate(model, df):
+    print("🧪 Running regression evaluation...")
+
+    # ---- Ensure target exists ----
+    if "Sales" not in df.columns:
+        raise ValueError("❌ ERROR: Target column 'Sales' not found in dataset!")
+
+    # ---- Split X and y ----
+    X = df.drop("Sales", axis=1)
+    y_true = df["Sales"]
+
+    # ---- Predictions ----
     preds = model.predict(X)
-    
-    acc = accuracy_score(y_true,preds)
-    prec = precision_score(y_true,preds,zero_division=0)
-    rec = recall_score(y_true,preds,zero_division=0)
-    f1 = f1_score(y_true,preds,zero_division=0)
-    
-    print(f"🎯 Accuracy: {acc:.4f}")
-    print(f"🎯 Precision: {prec:.4f}")
-    print(f"🎯 Recall: {rec:.4f}")
-    print(f"🎯 F1 Score: {f1:.4f}")
-    
-    print("\n📌 Classification Report")
-    print(classification_report(y_true,preds,zero_division=0))
-    
-    print("\n 📌Confusion Matrix")
-    print(confusion_matrix(y_true,preds))
-    
+
+    # ---- Regression Metrics ----
+    mae = mean_absolute_error(y_true, preds)
+    mse = mean_squared_error(y_true, preds)
+    rmse = mse ** 0.5
+    r2 = r2_score(y_true, preds)
+
+    print(f"📌 MAE  : {mae:.4f}")
+    print(f"📌 MSE  : {mse:.4f}")
+    print(f"📌 RMSE : {rmse:.4f}")
+    print(f"📌 R²   : {r2:.4f}")
+
+    return mae, mse, rmse, r2
+
 
 # ==========================
 # 🚀 MAIN
 # ==========================
 def main():
     print("🚀 Starting evaluation script....")
-    
+
     df = load_feature_data()
     model = load_model()
-    
-    evaluate(model,df)
-    
-    print(f"🎉 Evaluation completed")
+
+    evaluate(model, df)
+
+    print("🎉 Evaluation completed successfully!")
+
 
 if __name__ == "__main__":
     main()

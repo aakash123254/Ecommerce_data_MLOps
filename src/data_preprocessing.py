@@ -64,7 +64,14 @@ def clean_data(df):
     # Drop duplicates
     df = df.drop_duplicates()
 
+    # ======================
+    # 🎯 NEW — CREATE SALES
+    # ======================
+    if 'Quantity' in df.columns and 'UnitPrice' in df.columns:
+        df['Sales'] = df['Quantity'] * df['UnitPrice']
+
     print(f"✅ Data cleaned successfully. Shape: {df.shape}")
+    print(f"🎯 Target column added: 'Sales'")
     return df
 
 
