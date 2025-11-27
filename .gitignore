@@ -211,3 +211,5 @@ data/processed/*.csv
 data/raw/*.csv
 artifacts/
 *.pkl
+artifacts/model/model.pkl
+artifacts/model/
