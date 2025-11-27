@@ -52,8 +52,8 @@ def create_features(df):
     if "Country" in df.columns:
         df = pd.get_dummies(df, columns=["Country"], prefix="Country", drop_first=True)
     
-    # ---- Drop non-essential columns ----
-    drop_columns = ["InvoiceNo", "Description", "InvoiceDate"]
+    # ---- Drop non-essential or non-numeric columns ----
+    drop_columns = ["InvoiceNo", "Description", "InvoiceDate", "StockCode"]
     df = df.drop(columns=[col for col in drop_columns if col in df.columns], errors="ignore")
     
     print(f"✅ Feature engineering completed. Shape: {df.shape}")
