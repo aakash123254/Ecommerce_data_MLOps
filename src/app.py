@@ -93,27 +93,4 @@ if submitted:
     
     prediction = predict_sales(input_data)
     st.success(f"🔮 Predicted Sales: {prediction:.2f}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
